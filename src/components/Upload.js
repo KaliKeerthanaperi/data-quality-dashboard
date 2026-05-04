@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFile } from '../services/api';
 import '../styles/main.css';
 
 function Upload() {
@@ -10,26 +11,22 @@ function Upload() {
     setUploadStatus('');
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!selectedFile) {
       setUploadStatus('Please select a file first');
       return;
     }
 
-    // Create FormData for file upload
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
-    // Mock upload - replace with actual API endpoint
-    console.log('Uploading file:', selectedFile.name);
     setUploadStatus(`Uploading ${selectedFile.name}...`);
 
-    // Simulate upload delay
-    setTimeout(() => {
-      setUploadStatus(`Successfully uploaded ${selectedFile.name}`);
+    try {
+      const result = await uploadFile(selectedFile);
+      setUploadStatus(`Successfully uploaded ${result.filename}`);
       setSelectedFile(null);
       document.getElementById('fileInput').value = '';
-    }, 1500);
+    } catch (error) {
+      setUploadStatus(`Upload failed: ${error.message}`);
+    }
   };
 
   return (
