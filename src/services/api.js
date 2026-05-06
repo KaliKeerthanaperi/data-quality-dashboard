@@ -21,3 +21,19 @@ export const uploadFile = async (file) => {
     throw error;
   }
 };
+
+export const getDataQuality = async (filename) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/data-quality/${filename}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data quality: ${response.statusText}`);
+    }
+
+    const quality = await response.json();
+    return quality;
+  } catch (error) {
+    console.error('Data quality fetch error:', error);
+    throw error;
+  }
+};
