@@ -1,7 +1,8 @@
 ﻿import React, { useState } from 'react';
 import Upload from './components/Upload';
 import Dashboard from './components/Dashboard';
-import { getDataQuality } from './services/api';
+import IssuesTable from './components/IssuesTable';
+import { getDataQuality, getIssues } from './services/api';
 import './styles/main.css';
 
 function App() {
@@ -12,11 +13,16 @@ function App() {
     duplicatePercentage: 0,
     columnNames: []
   });
+  const [issues, setIssues] = useState(null);
 
   const handleUploadSuccess = async (uploadResult) => {
     try {
-      const quality = await getDataQuality(uploadResult.filename);
+      const [quality, issuesData] = await Promise.all([
+        getDataQuality(uploadResult.filename),
+        getIssues(uploadResult.filename),
+      ]);
       setDataStats(quality);
+      setIssues(issuesData);
     } catch (error) {
       console.error('Error fetching data quality:', error);
     }
@@ -38,6 +44,10 @@ function App() {
           <Dashboard dataStats={dataStats} />
         </div>
       </main>
+
+      <div className="issues-section">
+        <IssuesTable issues={issues} />
+      </div>
     </div>
   );
 }

@@ -37,3 +37,19 @@ export const getDataQuality = async (filename) => {
     throw error;
   }
 };
+
+export const getIssues = async (filename) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/issues/${encodeURIComponent(filename)}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch issues: ${response.statusText}`);
+    }
+
+    const issues = await response.json();
+    return issues;
+  } catch (error) {
+    console.error('Issues fetch error:', error);
+    throw error;
+  }
+};
