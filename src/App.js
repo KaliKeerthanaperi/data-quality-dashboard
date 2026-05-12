@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import Upload from './components/Upload';
 import Dashboard from './components/Dashboard';
+import Charts from './components/Charts';
 import IssuesTable from './components/IssuesTable';
 import { getDataQuality, getIssues } from './services/api';
 import './styles/main.css';
@@ -42,6 +43,10 @@ function App() {
         
         <div className="dashboard-section">
           <Dashboard dataStats={dataStats} />
+        </div>
+
+        <div className="charts-section">
+          <Charts issues={issues} />
         </div>
       </main>
 
