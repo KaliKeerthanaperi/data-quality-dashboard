@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { uploadFile } from '../services/api';
 import '../styles/main.css';
 
 function Upload({ onUploadSuccess }) {
+  const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,11 +26,13 @@ function Upload({ onUploadSuccess }) {
       const result = await uploadFile(selectedFile);
       setUploadStatus(`✅ Successfully uploaded ${result.filename}`);
       setSelectedFile(null);
-      document.getElementById('fileInput').value = '';
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       
       // Call the callback to update dashboard
       if (onUploadSuccess) {
-        onUploadSuccess(result);
+        await onUploadSuccess(result);
       }
     } catch (error) {
       setUploadStatus(`❌ Upload failed: ${error.message}`);
@@ -44,6 +47,7 @@ function Upload({ onUploadSuccess }) {
       <div className="upload-form">
         <div className="file-input-wrapper">
           <input
+            ref={fileInputRef}
             id="fileInput"
             type="file"
             onChange={handleFileChange}
@@ -67,23 +71,6 @@ function Upload({ onUploadSuccess }) {
       
       {uploadStatus && (
         <div className={`upload-status ${uploadStatus.includes('✅') ? 'success' : uploadStatus.includes('❌') ? 'error' : 'info'}`}>
-          {uploadStatus}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default Upload;
-          className="upload-button"
-          disabled={!selectedFile}
-        >
-          Upload
-        </button>
-      </div>
-
-      {uploadStatus && (
-        <div className={`upload-status ${uploadStatus.includes('Successfully') ? 'success' : 'info'}`}>
           {uploadStatus}
         </div>
       )}

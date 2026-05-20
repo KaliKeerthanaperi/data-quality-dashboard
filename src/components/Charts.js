@@ -15,32 +15,37 @@ import './Charts.css';
 function Charts({ issues }) {
   const [nullDistData, setNullDistData] = useState([]);
   const [columnStatsData, setColumnStatsData] = useState([]);
+  const issueColumns = issues?.columns || [];
 
   useEffect(() => {
-    if (issues && issues.columns_data) {
+    if (issues && issueColumns.length > 0) {
       // Prepare data for null distribution chart
-      const nullData = issues.columns_data.map((col) => ({
+      const nullData = issueColumns.map((col) => ({
         name: col.name,
         nullCount: col.null_count,
-        nullPercentage: col.null_percentage,
+        nullPercentage: Number(col.null_percentage || 0),
       }));
       setNullDistData(nullData);
 
       // Prepare data for column stats chart
-      const statsData = issues.columns_data.map((col) => ({
+      const statsData = issueColumns.map((col) => ({
         name: col.name,
         errorCount: col.error_count,
         dataType: col.dtype,
       }));
       setColumnStatsData(statsData);
+    } else {
+      setNullDistData([]);
+      setColumnStatsData([]);
     }
-  }, [issues]);
+  }, [issues, issueColumns]);
 
   const getColorByDataType = (dtype) => {
-    if (dtype.includes('int') || dtype.includes('float')) return '#3b82f6';
-    if (dtype.includes('object') || dtype.includes('string')) return '#10b981';
-    if (dtype.includes('bool')) return '#f59e0b';
-    if (dtype.includes('datetime') || dtype.includes('date')) return '#8b5cf6';
+    const safeDtype = String(dtype || '').toLowerCase();
+    if (safeDtype.includes('int') || safeDtype.includes('float')) return '#3b82f6';
+    if (safeDtype.includes('object') || safeDtype.includes('string')) return '#10b981';
+    if (safeDtype.includes('bool')) return '#f59e0b';
+    if (safeDtype.includes('datetime') || safeDtype.includes('date')) return '#8b5cf6';
     return '#6b7280';
   };
 
@@ -54,7 +59,7 @@ function Charts({ issues }) {
     <div className="charts-container">
       <h2>📊 Data Analysis Charts</h2>
 
-      {(!issues || !issues.columns_data || issues.columns_data.length === 0) ? (
+      {(!issues || issueColumns.length === 0) ? (
         <div className="empty-chart-state">
           <p>Upload a file to view data distribution and column statistics</p>
         </div>
@@ -172,7 +177,7 @@ function Charts({ issues }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {issues.columns_data.map((col, idx) => (
+                  {issueColumns.map((col, idx) => (
                     <tr key={idx} className={col.error_count > 0 ? 'error-row' : ''}>
                       <td className="col-name">{col.name}</td>
                       <td>
@@ -186,13 +191,13 @@ function Charts({ issues }) {
                         </span>
                       </td>
                       <td>{col.null_count}</td>
-                      <td>{col.null_percentage.toFixed(2)}%</td>
+                      <td>{Number(col.null_percentage || 0).toFixed(2)}%</td>
                       <td>
                         {col.error_count > 0 ? (
                           <div className="error-details">
                             <span className="error-count">{col.error_count}</span>
                             <ul className="error-list">
-                              {col.errors.map((error, i) => (
+                              {(col.errors || []).map((error, i) => (
                                 <li key={i}>{error}</li>
                               ))}
                             </ul>

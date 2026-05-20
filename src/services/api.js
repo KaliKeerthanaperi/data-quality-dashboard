@@ -1,4 +1,25 @@
-const API_BASE_URL = 'http://localhost:8000'; // Adjust if your backend runs on a different port
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+
+const parseJsonResponse = async (response, defaultMessage) => {
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    const backendMessage = payload?.detail || payload?.message;
+    throw new Error(backendMessage || `${defaultMessage}: ${response.statusText}`);
+  }
+
+  return payload;
+};
+
+export const getApiHealth = async () => {
+  const response = await fetch(`${API_BASE_URL}/health`);
+  return parseJsonResponse(response, 'Failed to reach API');
+};
 
 export const uploadFile = async (file) => {
   const formData = new FormData();
@@ -10,12 +31,7 @@ export const uploadFile = async (file) => {
       body: formData,
     });
 
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    return result;
+    return await parseJsonResponse(response, 'Upload failed');
   } catch (error) {
     console.error('Upload error:', error);
     throw error;
@@ -25,13 +41,7 @@ export const uploadFile = async (file) => {
 export const getDataQuality = async (filename) => {
   try {
     const response = await fetch(`${API_BASE_URL}/data-quality/${filename}`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data quality: ${response.statusText}`);
-    }
-
-    const quality = await response.json();
-    return quality;
+    return await parseJsonResponse(response, 'Failed to fetch data quality');
   } catch (error) {
     console.error('Data quality fetch error:', error);
     throw error;
@@ -41,13 +51,7 @@ export const getDataQuality = async (filename) => {
 export const getIssues = async (filename) => {
   try {
     const response = await fetch(`${API_BASE_URL}/issues/${encodeURIComponent(filename)}`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch issues: ${response.statusText}`);
-    }
-
-    const issues = await response.json();
-    return issues;
+    return await parseJsonResponse(response, 'Failed to fetch issues');
   } catch (error) {
     console.error('Issues fetch error:', error);
     throw error;

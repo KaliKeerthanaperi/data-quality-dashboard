@@ -174,7 +174,6 @@
   padding-left: 18px;
   position: relative;
 }
-}
 
 .error-list li:before {
   content: '⚠️';
