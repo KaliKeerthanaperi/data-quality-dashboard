@@ -15,29 +15,37 @@ import './Charts.css';
 function Charts({ issues }) {
   const [nullDistData, setNullDistData] = useState([]);
   const [columnStatsData, setColumnStatsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const issueColumns = issues?.columns || [];
 
   useEffect(() => {
-    if (issues && issueColumns.length > 0) {
-      // Prepare data for null distribution chart
-      const nullData = issueColumns.map((col) => ({
-        name: col.name,
-        nullCount: col.null_count,
-        nullPercentage: Number(col.null_percentage || 0),
-      }));
-      setNullDistData(nullData);
+    setIsLoading(true);
+    // Simulate processing delay for better UX
+    const timer = setTimeout(() => {
+      if (issues && issueColumns.length > 0) {
+        // Prepare data for null distribution chart
+        const nullData = issueColumns.map((col) => ({
+          name: col.name,
+          nullCount: col.null_count,
+          nullPercentage: Number(col.null_percentage || 0),
+        }));
+        setNullDistData(nullData);
 
-      // Prepare data for column stats chart
-      const statsData = issueColumns.map((col) => ({
-        name: col.name,
-        errorCount: col.error_count,
-        dataType: col.dtype,
-      }));
-      setColumnStatsData(statsData);
-    } else {
-      setNullDistData([]);
-      setColumnStatsData([]);
-    }
+        // Prepare data for column stats chart
+        const statsData = issueColumns.map((col) => ({
+          name: col.name,
+          errorCount: col.error_count,
+          dataType: col.dtype,
+        }));
+        setColumnStatsData(statsData);
+      } else {
+        setNullDistData([]);
+        setColumnStatsData([]);
+      }
+      setIsLoading(false);
+    }, 200);
+    
+    return () => clearTimeout(timer);
   }, [issues, issueColumns]);
 
   const getColorByDataType = (dtype) => {
@@ -59,11 +67,17 @@ function Charts({ issues }) {
     <div className="charts-container">
       <h2>📊 Data Analysis Charts</h2>
 
-      {(!issues || issueColumns.length === 0) ? (
+      {isLoading && (
+        <div className="loading-state">
+          <p>Loading charts...</p>
+        </div>
+      )}
+
+      {!isLoading && (!issues || issueColumns.length === 0) ? (
         <div className="empty-chart-state">
           <p>Upload a file to view data distribution and column statistics</p>
         </div>
-      ) : (
+      ) : !isLoading && (
         <div className="charts-grid">
           {/* Null Distribution Chart */}
           <div className="chart-wrapper">

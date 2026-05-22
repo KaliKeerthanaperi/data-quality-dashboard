@@ -40,7 +40,7 @@ export const uploadFile = async (file) => {
 
 export const getDataQuality = async (filename) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/data-quality/${filename}`);
+    const response = await fetch(`${API_BASE_URL}/data-quality/${encodeURIComponent(filename)}`);
     return await parseJsonResponse(response, 'Failed to fetch data quality');
   } catch (error) {
     console.error('Data quality fetch error:', error);

@@ -4,8 +4,11 @@ import '../styles/main.css';
 function IssuesTable({ issues }) {
   const [filter, setFilter] = useState('all'); // 'all' | 'nulls' | 'errors'
   const [sortConfig, setSortConfig] = useState({ key: 'null_count', direction: 'desc' });
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const columns = issues?.columns || [];
+  const columns = (issues?.columns || []).filter(col => 
+    col.name && col.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   const totalNulls = issues?.total_nulls ?? 0;
   const totalErrors = issues?.total_errors ?? 0;
 
@@ -71,6 +74,17 @@ function IssuesTable({ issues }) {
         <span className="issues-badge badge-info">
           Columns: {columns.length}
         </span>
+      </div>
+
+      {/* Search input */}
+      <div className="issues-search">
+        <input
+          type="text"
+          placeholder="🔍 Search columns by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
       </div>
 
       {/* Filter tabs */}

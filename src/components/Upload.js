@@ -15,12 +15,18 @@ function Upload({ onUploadSuccess }) {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setUploadStatus('Please select a file first');
+      setUploadStatus('⚠️ Please select a file first');
+      return;
+    }
+
+    // Validate file size (limit to 50MB)
+    if (selectedFile.size > 50 * 1024 * 1024) {
+      setUploadStatus('❌ File size exceeds 50MB limit');
       return;
     }
 
     setIsLoading(true);
-    setUploadStatus(`Uploading ${selectedFile.name}...`);
+    setUploadStatus(`📤 Uploading ${selectedFile.name}...`);
 
     try {
       const result = await uploadFile(selectedFile);
@@ -35,7 +41,7 @@ function Upload({ onUploadSuccess }) {
         await onUploadSuccess(result);
       }
     } catch (error) {
-      setUploadStatus(`❌ Upload failed: ${error.message}`);
+      setUploadStatus(`❌ Upload failed: ${error.message || 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
